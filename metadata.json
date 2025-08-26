@@ -1,0 +1,5 @@
+{
+  "name": "Quiz Paper AI Converter",
+  "description": "An AI-powered web application that takes raw text from a question paper, including an answer key, and instantly converts it into an interactive online quiz.",
+  "requestFramePermissions": []
+}
