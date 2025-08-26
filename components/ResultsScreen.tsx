@@ -21,10 +21,27 @@ const XIcon = () => (
 );
 
 const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRestart }) => {
+  const totalQuestions = quiz.reduce((sum, section) => sum + section.questions.length, 0);
+  
   const score = userAnswers.reduce((total, answer, index) => {
-    return answer === quiz[index].correctAnswerIndex ? total + 1 : total;
+    let questionIndex = index;
+    let correctSection;
+    for(const section of quiz) {
+        if(questionIndex < section.questions.length){
+            correctSection = section;
+            break;
+        }
+        questionIndex -= section.questions.length;
+    }
+    const question = correctSection?.questions[questionIndex];
+    if (question && answer === question.correctAnswerIndex) {
+        return total + 1;
+    }
+    return total;
   }, 0);
-  const percentage = Math.round((score / quiz.length) * 100);
+  
+  const percentage = Math.round((score / totalQuestions) * 100);
+  let globalQuestionIndex = 0;
 
   return (
     <div className="flex flex-col items-center">
@@ -32,7 +49,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRest
       
       <div className="my-6 text-center">
         <p className="text-xl text-text_secondary">You Scored</p>
-        <p className="text-6xl font-bold my-2">{score} / {quiz.length}</p>
+        <p className="text-6xl font-bold my-2">{score} / {totalQuestions}</p>
         <div className="w-full bg-secondary rounded-full h-4 mt-4">
           <div 
             className="bg-gradient-to-r from-green-400 to-blue-500 h-4 rounded-full"
@@ -42,33 +59,43 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRest
       </div>
       
       <div className="w-full mt-8 space-y-4 max-h-[40vh] overflow-y-auto pr-2">
-        {quiz.map((question, index) => {
-          const userAnswer = userAnswers[index];
-          const correctAnswerIndex = question.correctAnswerIndex;
-          const isCorrect = userAnswer === correctAnswerIndex;
+        {quiz.map((section, sectionIndex) => (
+            <div key={sectionIndex}>
+                {section.paragraph && (
+                    <div className="mb-2 p-3 bg-gray-900 border border-secondary rounded-lg">
+                        <p className="text-sm text-text_secondary italic whitespace-pre-wrap">Context: "{section.paragraph.substring(0, 100)}..."</p>
+                    </div>
+                )}
+                {section.questions.map((question, questionIndex) => {
+                    const userAnswer = userAnswers[globalQuestionIndex];
+                    const correctAnswerIndex = question.correctAnswerIndex;
+                    const isCorrect = userAnswer === correctAnswerIndex;
+                    const currentIndex = globalQuestionIndex++;
 
-          return (
-            <div key={index} className="bg-secondary p-4 rounded-lg">
-              <div className="flex justify-between items-start">
-                  <p className="font-semibold mb-2 flex-1">{index + 1}. {question.questionText}</p>
-                  {isCorrect ? <CheckIcon/> : <XIcon />}
-              </div>
-              
-              <div className="text-sm space-y-2 mt-2">
-                {question.options.map((option, optIndex) => {
-                  let classes = "text-text_secondary";
-                  if (optIndex === correctAnswerIndex) {
-                    classes = "text-correct font-bold";
-                  } else if (optIndex === userAnswer) {
-                    classes = "text-incorrect line-through";
-                  }
-                  
-                  return <p key={optIndex} className={classes}>{String.fromCharCode(65 + optIndex)}. {option}</p>
+                    return (
+                        <div key={questionIndex} className="bg-secondary p-4 rounded-lg mb-4">
+                        <div className="flex justify-between items-start">
+                            <p className="font-semibold mb-2 flex-1">{currentIndex + 1}. {question.questionText}</p>
+                            {isCorrect ? <CheckIcon/> : <XIcon />}
+                        </div>
+                        
+                        <div className="text-sm space-y-2 mt-2">
+                            {question.options.map((option, optIndex) => {
+                            let classes = "text-text_secondary";
+                            if (optIndex === correctAnswerIndex) {
+                                classes = "text-correct font-bold";
+                            } else if (optIndex === userAnswer) {
+                                classes = "text-incorrect line-through";
+                            }
+                            
+                            return <p key={optIndex} className={classes}>{String.fromCharCode(65 + optIndex)}. {option}</p>
+                            })}
+                        </div>
+                        </div>
+                    );
                 })}
-              </div>
-            </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
       <button

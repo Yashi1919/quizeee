@@ -1,24 +1,47 @@
+import React, { useState, useMemo } from 'react';
+import { Quiz, UserAnswer, Question } from '../types';
 
-import React, { useState } from 'react';
-import { Quiz, UserAnswer } from '../types';
+interface FlatQuestion {
+  question: Question;
+  paragraph?: string;
+  globalIndex: number;
+}
 
 interface QuizScreenProps {
   quiz: Quiz;
   userAnswers: UserAnswer[];
-  setUserAnswers: React.Dispatch<React.SetStateAction<UserAnswer[]>>;
+  onUpdateAnswers: (answers: UserAnswer[]) => void;
   onSubmitQuiz: () => void;
 }
 
-const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, setUserAnswers, onSubmitQuiz }) => {
+const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, onUpdateAnswers, onSubmitQuiz }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const currentQuestion = quiz[currentQuestionIndex];
-  const totalQuestions = quiz.length;
+  
+  const flatQuestions: FlatQuestion[] = useMemo(() => {
+    const flattened: FlatQuestion[] = [];
+    let globalIndex = 0;
+    quiz.forEach(section => {
+      section.questions.forEach(q => {
+        flattened.push({
+          question: q,
+          paragraph: section.paragraph,
+          globalIndex: globalIndex,
+        });
+        globalIndex++;
+      });
+    });
+    return flattened;
+  }, [quiz]);
+
+  const totalQuestions = flatQuestions.length;
+  const currentFlatQuestion = flatQuestions[currentQuestionIndex];
+  const currentQuestion = currentFlatQuestion.question;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
 
   const handleSelectOption = (optionIndex: number) => {
     const newAnswers = [...userAnswers];
     newAnswers[currentQuestionIndex] = optionIndex;
-    setUserAnswers(newAnswers);
+    onUpdateAnswers(newAnswers);
   };
 
   const handleNext = () => {
@@ -30,6 +53,12 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, setUserAnswe
   const handlePrev = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
+    }
+  };
+
+  const handleJumpToQuestion = (index: number) => {
+    if (index >= 0 && index < totalQuestions) {
+        setCurrentQuestionIndex(index);
     }
   };
 
@@ -45,7 +74,45 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, setUserAnswe
         </div>
       </div>
       
-      <div className="flex-grow">
+      <details className="mb-4" open>
+        <summary className="text-sm font-semibold text-text_secondary mb-2 cursor-pointer hover:text-text_primary transition-colors">
+          Question Navigator
+        </summary>
+        <div className="flex flex-wrap gap-2 p-3 bg-background rounded-md mt-1 border border-secondary">
+          {flatQuestions.map((_, index) => {
+            const isCurrent = index === currentQuestionIndex;
+            const isAnswered = userAnswers[index] !== null;
+            let buttonClass = 'w-9 h-9 flex items-center justify-center rounded-md font-mono text-sm transition-all duration-200 transform hover:scale-110 ';
+            
+            if (isCurrent) {
+              buttonClass += 'bg-accent text-white ring-2 ring-offset-2 ring-offset-card ring-accent shadow-lg';
+            } else if (isAnswered) {
+              buttonClass += 'bg-blue-900/60 text-text_primary hover:bg-blue-800/70 border border-accent';
+            } else {
+              buttonClass += 'bg-secondary text-text_secondary hover:bg-gray-600';
+            }
+            
+            return (
+              <button
+                key={index}
+                onClick={() => handleJumpToQuestion(index)}
+                className={buttonClass}
+                aria-label={`Go to question ${index + 1}`}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      </details>
+
+      <div className="flex-grow overflow-y-auto pr-2 pt-4 border-t border-secondary">
+        {currentFlatQuestion.paragraph && (
+            <div className="mb-6 p-4 bg-gray-900 border border-secondary rounded-lg">
+                <h3 className="text-sm font-semibold text-text_secondary mb-2">Reading Passage</h3>
+                <p className="text-text_primary leading-relaxed whitespace-pre-wrap">{currentFlatQuestion.paragraph}</p>
+            </div>
+        )}
         <h2 className="text-2xl font-semibold my-4 leading-snug">{currentQuestion.questionText}</h2>
         <div className="space-y-3">
           {currentQuestion.options.map((option, index) => {

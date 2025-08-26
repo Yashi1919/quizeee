@@ -5,7 +5,12 @@ export interface Question {
   correctAnswerIndex: number;
 }
 
-export type Quiz = Question[];
+export interface QuizSection {
+  paragraph?: string;
+  questions: Question[];
+}
+
+export type Quiz = QuizSection[];
 
 export type UserAnswer = number | null;
 
