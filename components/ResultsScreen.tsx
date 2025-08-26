@@ -1,10 +1,9 @@
 
 import React from 'react';
-import { Quiz, UserAnswer } from '../types';
+import { SavedQuiz } from '../types';
 
 interface ResultsScreenProps {
-  quiz: Quiz;
-  userAnswers: UserAnswer[];
+  activeQuiz: SavedQuiz;
   onRestart: () => void;
 }
 
@@ -20,13 +19,14 @@ const XIcon = () => (
     </svg>
 );
 
-const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRestart }) => {
-  const totalQuestions = quiz.reduce((sum, section) => sum + section.questions.length, 0);
+const ResultsScreen: React.FC<ResultsScreenProps> = ({ activeQuiz, onRestart }) => {
+  const { quizData, userAnswers } = activeQuiz;
+  const totalQuestions = quizData.reduce((sum, section) => sum + section.questions.length, 0);
   
   const score = userAnswers.reduce((total, answer, index) => {
     let questionIndex = index;
     let correctSection;
-    for(const section of quiz) {
+    for(const section of quizData) {
         if(questionIndex < section.questions.length){
             correctSection = section;
             break;
@@ -40,7 +40,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRest
     return total;
   }, 0);
   
-  const percentage = Math.round((score / totalQuestions) * 100);
+  const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
   let globalQuestionIndex = 0;
 
   return (
@@ -59,7 +59,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRest
       </div>
       
       <div className="w-full mt-8 space-y-4 max-h-[40vh] overflow-y-auto pr-2">
-        {quiz.map((section, sectionIndex) => (
+        {quizData.map((section, sectionIndex) => (
             <div key={sectionIndex}>
                 {section.paragraph && (
                     <div className="mb-2 p-3 bg-gray-900 border border-secondary rounded-lg">
@@ -84,7 +84,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRest
                             let classes = "text-text_secondary";
                             if (optIndex === correctAnswerIndex) {
                                 classes = "text-correct font-bold";
-                            } else if (optIndex === userAnswer) {
+                            } else if (optIndex === userAnswer && !isCorrect) {
                                 classes = "text-incorrect line-through";
                             }
                             
@@ -102,7 +102,7 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ quiz, userAnswers, onRest
         onClick={onRestart}
         className="mt-8 px-8 py-3 bg-accent hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg transform hover:scale-105 transition-all"
       >
-        Create Another Quiz
+        Back to Home
       </button>
     </div>
   );

@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { Quiz, UserAnswer, Question } from '../types';
+
+import React, { useState, useMemo, useEffect } from 'react';
+import { SavedQuiz, UserAnswer, Question } from '../types';
 
 interface FlatQuestion {
   question: Question;
@@ -8,19 +9,43 @@ interface FlatQuestion {
 }
 
 interface QuizScreenProps {
-  quiz: Quiz;
-  userAnswers: UserAnswer[];
-  onUpdateAnswers: (answers: UserAnswer[]) => void;
+  activeQuiz: SavedQuiz;
+  onUpdateQuizState: (answers: UserAnswer[], timeLeft: number | null) => void;
   onSubmitQuiz: () => void;
+  onPauseQuiz: (timeLeft: number | null) => void;
 }
 
-const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, onUpdateAnswers, onSubmitQuiz }) => {
+const formatTime = (seconds: number): string => {
+    if (seconds < 0) return "00:00";
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+const QuizScreen: React.FC<QuizScreenProps> = ({ activeQuiz, onUpdateQuizState, onSubmitQuiz, onPauseQuiz }) => {
+  const { quizData, userAnswers, timeLeftInSeconds } = activeQuiz;
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(timeLeftInSeconds);
+
+  useEffect(() => {
+    if (timeLeft === null) return;
+
+    if (timeLeft <= 0) {
+      onSubmitQuiz();
+      return;
+    }
+
+    const timerId = setInterval(() => {
+        setTimeLeft(prev => prev !== null ? prev - 1 : null);
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [timeLeft, onSubmitQuiz]);
   
   const flatQuestions: FlatQuestion[] = useMemo(() => {
     const flattened: FlatQuestion[] = [];
     let globalIndex = 0;
-    quiz.forEach(section => {
+    quizData.forEach(section => {
       section.questions.forEach(q => {
         flattened.push({
           question: q,
@@ -31,7 +56,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, onUpdateAnsw
       });
     });
     return flattened;
-  }, [quiz]);
+  }, [quizData]);
 
   const totalQuestions = flatQuestions.length;
   const currentFlatQuestion = flatQuestions[currentQuestionIndex];
@@ -41,7 +66,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, onUpdateAnsw
   const handleSelectOption = (optionIndex: number) => {
     const newAnswers = [...userAnswers];
     newAnswers[currentQuestionIndex] = optionIndex;
-    onUpdateAnswers(newAnswers);
+    onUpdateQuizState(newAnswers, timeLeft);
   };
 
   const handleNext = () => {
@@ -64,14 +89,28 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ quiz, userAnswers, onUpdateAnsw
 
   return (
     <div className="flex flex-col h-full">
-      <div className="mb-4">
-        <p className="text-sm text-text_secondary">Question {currentQuestionIndex + 1} of {totalQuestions}</p>
-        <div className="w-full bg-secondary rounded-full h-2.5 mt-1">
-          <div 
-            className="bg-accent h-2.5 rounded-full transition-all duration-500" 
-            style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
-          ></div>
+      <div className="mb-4 flex justify-between items-center gap-4">
+        <div className="flex-grow">
+            <p className="text-sm text-text_secondary">Question {currentQuestionIndex + 1} of {totalQuestions}</p>
+            <div className="w-full bg-secondary rounded-full h-2.5 mt-1">
+            <div 
+                className="bg-accent h-2.5 rounded-full transition-all duration-500" 
+                style={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+            ></div>
+            </div>
         </div>
+         <button
+            onClick={() => onPauseQuiz(timeLeft)}
+            className="px-4 py-2 border-2 border-yellow-600 text-yellow-400 hover:bg-yellow-600 hover:text-white font-semibold rounded-lg transition-colors text-sm"
+        >
+            Pause
+        </button>
+        {timeLeft !== null && (
+            <div className="text-right">
+                <p className="text-sm text-text_secondary">Time Left</p>
+                <p className="font-mono text-xl font-bold text-accent">{formatTime(timeLeft)}</p>
+            </div>
+        )}
       </div>
       
       <details className="mb-4" open>

@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { Quiz } from '../types';
 
@@ -101,10 +100,21 @@ export const parseQuizFromText = async (text: string): Promise<Quiz | null> => {
 
   } catch (error) {
     console.error("Error parsing quiz with Gemini:", error);
-    let errorMessage = "An unknown error occurred while communicating with the AI.";
-    if (error instanceof Error) {
-        errorMessage = error.message;
+
+    let friendlyMessage = "The AI couldn't generate a quiz. This may be a temporary issue or a problem with the provided text format.";
+
+    if (error && typeof error.toString === 'function') {
+        const errorString = error.toString();
+        
+        if (errorString.includes("400") || errorString.includes("malformed")) {
+            friendlyMessage = "The AI service reported a problem with the request. Please check that your input text is formatted correctly.";
+        } else if (errorString.includes("500") || errorString.includes("Rpc failed")) {
+            friendlyMessage = "The AI service is currently experiencing technical difficulties. Please try again in a few moments.";
+        } else if (errorString.includes("API_KEY")) {
+            friendlyMessage = "There is an issue with the API key configuration.";
+        }
     }
-    throw new Error(`AI processing failed: ${errorMessage}`);
+
+    throw new Error(friendlyMessage);
   }
 };
