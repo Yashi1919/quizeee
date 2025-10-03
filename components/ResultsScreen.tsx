@@ -74,23 +74,30 @@ const ResultsScreen: React.FC<ResultsScreenProps> = ({ activeQuiz, onRestart }) 
 
                     return (
                         <div key={questionIndex} className="bg-secondary p-4 rounded-lg mb-4">
-                        <div className="flex justify-between items-start">
-                            <p className="font-semibold mb-2 flex-1">{currentIndex + 1}. {question.questionText}</p>
-                            {isCorrect ? <CheckIcon/> : <XIcon />}
-                        </div>
-                        
-                        <div className="text-sm space-y-2 mt-2">
-                            {question.options.map((option, optIndex) => {
-                            let classes = "text-text_secondary";
-                            if (optIndex === correctAnswerIndex) {
-                                classes = "text-correct font-bold";
-                            } else if (optIndex === userAnswer && !isCorrect) {
-                                classes = "text-incorrect line-through";
-                            }
+                            <div className="flex justify-between items-start">
+                                <p className="font-semibold mb-2 flex-1">{currentIndex + 1}. {question.questionText}</p>
+                                {isCorrect ? <CheckIcon/> : <XIcon />}
+                            </div>
                             
-                            return <p key={optIndex} className={classes}>{String.fromCharCode(65 + optIndex)}. {option}</p>
-                            })}
-                        </div>
+                            <div className="text-sm space-y-2 mt-2">
+                                {question.options.map((option, optIndex) => {
+                                let classes = "text-text_secondary";
+                                if (optIndex === correctAnswerIndex) {
+                                    classes = "text-correct font-bold";
+                                } else if (optIndex === userAnswer && !isCorrect) {
+                                    classes = "text-incorrect line-through";
+                                }
+                                
+                                return <p key={optIndex} className={classes}>{String.fromCharCode(65 + optIndex)}. {option}</p>
+                                })}
+                            </div>
+
+                            {question.explanation && (
+                                <div className="mt-4 pt-3 border-t border-gray-700">
+                                    <p className="text-sm font-semibold text-text_secondary">Explanation:</p>
+                                    <p className="text-sm text-text_primary mt-1">{question.explanation}</p>
+                                </div>
+                            )}
                         </div>
                     );
                 })}

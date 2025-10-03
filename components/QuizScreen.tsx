@@ -62,8 +62,10 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ activeQuiz, onUpdateQuizState, 
   const currentFlatQuestion = flatQuestions[currentQuestionIndex];
   const currentQuestion = currentFlatQuestion.question;
   const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+  const hasAnswered = userAnswers[currentQuestionIndex] !== null;
 
   const handleSelectOption = (optionIndex: number) => {
+    if (hasAnswered) return;
     const newAnswers = [...userAnswers];
     newAnswers[currentQuestionIndex] = optionIndex;
     onUpdateQuizState(newAnswers, timeLeft);
@@ -156,12 +158,27 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ activeQuiz, onUpdateQuizState, 
         <div className="space-y-3">
           {currentQuestion.options.map((option, index) => {
             const isSelected = userAnswers[currentQuestionIndex] === index;
-            const selectedClass = isSelected ? 'ring-2 ring-accent bg-blue-900/50' : 'bg-secondary hover:bg-gray-600';
+            const isCorrect = index === currentQuestion.correctAnswerIndex;
+            let buttonClass = 'w-full text-left p-4 rounded-lg transition-all duration-200 ';
+
+            if (hasAnswered) {
+                if (isCorrect) {
+                    buttonClass += 'bg-correct/30 ring-2 ring-correct text-text_primary font-semibold';
+                } else if (isSelected && !isCorrect) {
+                    buttonClass += 'bg-incorrect/30 ring-2 ring-incorrect text-text_secondary line-through';
+                } else {
+                    buttonClass += 'bg-secondary opacity-60 cursor-not-allowed';
+                }
+            } else {
+                buttonClass += isSelected ? 'ring-2 ring-accent bg-blue-900/50' : 'bg-secondary hover:bg-gray-600';
+            }
+
             return (
               <button
                 key={index}
                 onClick={() => handleSelectOption(index)}
-                className={`w-full text-left p-4 rounded-lg transition-all duration-200 ${selectedClass}`}
+                disabled={hasAnswered}
+                className={buttonClass}
               >
                 <span className="font-mono mr-3">{String.fromCharCode(65 + index)}.</span>
                 <span>{option}</span>
@@ -169,6 +186,14 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ activeQuiz, onUpdateQuizState, 
             );
           })}
         </div>
+        
+        {hasAnswered && currentQuestion.explanation && (
+            <div className="mt-6 p-4 bg-gray-900 border border-secondary rounded-lg animate-fade-in">
+                <h3 className="text-lg font-semibold text-accent mb-2">Explanation</h3>
+                <p className="text-text_primary leading-relaxed">{currentQuestion.explanation}</p>
+            </div>
+        )}
+
       </div>
       
       <div className="mt-8 flex justify-between items-center">

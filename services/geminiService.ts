@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { Quiz } from '../types';
 
@@ -36,8 +37,12 @@ const quizSchema = {
                 type: Type.INTEGER,
                 description: "The 0-based index of the correct answer in the 'options' array.",
               },
+              explanation: {
+                type: Type.STRING,
+                description: "A concise explanation for why the correct answer is correct.",
+              },
             },
-            required: ["questionText", "options", "correctAnswerIndex"],
+            required: ["questionText", "options", "correctAnswerIndex", "explanation"],
           }
         }
       },
@@ -56,6 +61,7 @@ export const parseQuizFromText = async (text: string): Promise<Quiz | null> => {
     For questions that are not related to a paragraph, create a section object that only contains the 'questions' array.
 
     Extract each question, its options, and identify the correct answer from the answer key.
+    For each question, also provide a concise explanation for why the correct answer is correct.
     The options might be labeled with A), B), C), D) or 1., 2., 3., 4. etc. Please strip these labels from the option text.
     The answer key might be in various formats like "1. A, 2. C" or "Answers: 1-B, 2-D".
     Your task is to convert this into a JSON array of question section objects.
@@ -90,7 +96,8 @@ export const parseQuizFromText = async (text: string): Promise<Quiz | null> => {
         section.questions.every((q: any) => 
             typeof q.questionText === 'string' &&
             Array.isArray(q.options) &&
-            typeof q.correctAnswerIndex === 'number'
+            typeof q.correctAnswerIndex === 'number' &&
+            typeof q.explanation === 'string'
         )
     )) {
         return parsedData as Quiz;

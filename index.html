@@ -21,6 +21,15 @@
               accent: '#3b82f6', // blue-500
               correct: '#10b981', // emerald-500
               incorrect: '#ef4444', // red-500
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
             }
           }
         }
