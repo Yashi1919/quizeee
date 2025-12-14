@@ -13,7 +13,7 @@ const Navbar: React.FC<NavbarProps> = ({ onNavigate, hasSavedQuizzes }) => {
         className="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600 cursor-pointer"
         onClick={() => onNavigate('HOME')}
       >
-        QuizGen AI
+        UPSC Quiz Gen AI
       </div>
       <div className="flex items-center gap-4">
         <button 

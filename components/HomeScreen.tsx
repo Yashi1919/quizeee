@@ -13,13 +13,27 @@ interface HomeScreenProps {
   onStartEconomyQuiz: () => void;
   onStartPolityQuiz: () => void;
   onStartScienceTechQuiz: () => void;
+  onStartFullMockQuiz: () => void;
 }
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ onCreateNew, onShowSaved, hasSavedQuizzes, onStartAncientHistoryQuiz, onStartEnvironmentQuiz, onStartModernHistoryQuiz, onStartGeographyQuiz, onStartArtCultureQuiz, onStartEconomyQuiz, onStartPolityQuiz, onStartScienceTechQuiz }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({ 
+    onCreateNew, 
+    onShowSaved, 
+    hasSavedQuizzes, 
+    onStartAncientHistoryQuiz, 
+    onStartEnvironmentQuiz, 
+    onStartModernHistoryQuiz, 
+    onStartGeographyQuiz, 
+    onStartArtCultureQuiz, 
+    onStartEconomyQuiz, 
+    onStartPolityQuiz, 
+    onStartScienceTechQuiz,
+    onStartFullMockQuiz
+}) => {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center">
       <h1 className="text-4xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">
-        Welcome to QuizGen AI
+        Welcome to UPSC Quiz Gen AI
       </h1>
       <p className="mt-4 max-w-2xl text-lg text-text_secondary">
         Instantly transform any question paper or text into an interactive, timed quiz. Save your progress, manage multiple quizzes, and enhance your learning experience with the power of AI.
@@ -44,6 +58,29 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onCreateNew, onShowSaved, hasSa
 
       <div className="mt-16 w-full">
         <h2 className="text-2xl font-semibold text-text_primary mb-6 border-b border-secondary pb-2">Featured Quizzes</h2>
+        
+        {/* Full Mock Test Section */}
+        <div className="mb-8">
+            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 border border-indigo-500 p-6 rounded-xl text-left shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-indigo-500/20 flex flex-col sm:flex-row justify-between items-center gap-6">
+                <div>
+                    <h3 className="text-2xl font-bold text-white mb-2">UPSC Prelims GS1 Full Mock</h3>
+                    <p className="text-indigo-200 text-sm mb-1">
+                        <span className="font-semibold text-white">100 Questions</span> • <span className="font-semibold text-white">120 Minutes</span>
+                    </p>
+                    <p className="text-text_secondary text-sm max-w-xl">
+                        A comprehensive mock test designed based on recent UPSC trends. 
+                        Includes Geography (20), Polity (17), Economy (16), Environment (18), History (12), and Science & Tech (17).
+                    </p>
+                </div>
+                <button
+                    onClick={onStartFullMockQuiz}
+                    className="px-8 py-3 bg-white text-indigo-900 hover:bg-indigo-50 font-bold rounded-lg shadow-lg transition-colors whitespace-nowrap"
+                >
+                    Start Mock Test &rarr;
+                </button>
+            </div>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-gradient-to-br from-gray-800 to-gray-900 border border-secondary p-6 rounded-xl text-left shadow-lg transform transition-all hover:scale-[1.01] hover:border-accent flex flex-col">
                 <div className="flex justify-between items-start mb-4">

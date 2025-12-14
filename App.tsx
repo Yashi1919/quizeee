@@ -18,6 +18,7 @@ import { ART_CULTURE_QUIZ } from './data/artCultureQuiz';
 import { ECONOMY_QUIZ } from './data/economyQuiz';
 import { POLITY_QUIZ } from './data/polityQuiz';
 import { SCIENCE_TECH_QUIZ } from './data/scienceTechQuiz';
+import { generateMockQuiz } from './data/fullMockQuiz';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.HOME);
@@ -84,7 +85,7 @@ const App: React.FC = () => {
     }
   }, [savedQuizzes]);
 
-  const handleStartFeaturedQuiz = useCallback((quizId: string, name: string, data: any) => {
+  const handleStartFeaturedQuiz = useCallback((quizId: string, name: string, data: any, timeLimitMinutes: number | null = null) => {
       const existing = savedQuizzes.find(q => q.id === quizId);
 
       if (existing) {
@@ -92,13 +93,14 @@ const App: React.FC = () => {
       } else {
           // Create the default quiz and save it
           const totalQuestions = data.reduce((acc: number, section: any) => acc + section.questions.length, 0);
+          const timeLimitInSeconds = timeLimitMinutes ? timeLimitMinutes * 60 : null;
           const newDefaultQuiz: SavedQuiz = {
               id: quizId,
               name: name,
               quizData: data,
               userAnswers: new Array(totalQuestions).fill(null),
-              timeLimitInSeconds: null,
-              timeLeftInSeconds: null,
+              timeLimitInSeconds: timeLimitInSeconds,
+              timeLeftInSeconds: timeLimitInSeconds,
               createdAt: new Date().toISOString(),
           };
           const updatedQuizzes = [newDefaultQuiz, ...savedQuizzes];
@@ -173,6 +175,35 @@ const App: React.FC = () => {
     );
   }, [handleStartFeaturedQuiz]);
 
+  const handleStartFullMockQuiz = useCallback(() => {
+    // Generate a fresh set of random questions
+    const quizData = generateMockQuiz();
+    const totalQuestions = quizData.reduce((acc, section) => acc + section.questions.length, 0);
+    const timeLimitMinutes = 120;
+    const timeLimitInSeconds = timeLimitMinutes * 60;
+    
+    // Create unique ID and Name
+    const timestamp = Date.now();
+    const dateStr = new Date().toLocaleDateString();
+    const timeStr = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    
+    const newMockQuiz: SavedQuiz = {
+        id: `mock-gs1-${timestamp}`,
+        name: `Prelims Mock - ${dateStr} ${timeStr}`,
+        quizData: quizData,
+        userAnswers: new Array(totalQuestions).fill(null),
+        timeLimitInSeconds: timeLimitInSeconds,
+        timeLeftInSeconds: timeLimitInSeconds,
+        createdAt: new Date().toISOString(),
+    };
+
+    const updatedQuizzes = [newMockQuiz, ...savedQuizzes];
+    setSavedQuizzes(updatedQuizzes);
+    saveQuizzes(updatedQuizzes);
+    setActiveQuiz(newMockQuiz);
+    setAppState(AppState.QUIZ);
+  }, [savedQuizzes]);
+
   const handleDeleteQuiz = useCallback((quizId: string) => {
     const updatedQuizzes = savedQuizzes.filter(q => q.id !== quizId);
     setSavedQuizzes(updatedQuizzes);
@@ -234,6 +265,7 @@ const App: React.FC = () => {
                   onStartEconomyQuiz={handleStartEconomyQuiz}
                   onStartPolityQuiz={handleStartPolityQuiz}
                   onStartScienceTechQuiz={handleStartScienceTechQuiz}
+                  onStartFullMockQuiz={handleStartFullMockQuiz}
                 />;
       case AppState.INPUT:
         return <InputScreen onCreateQuiz={handleCreateQuiz} error={error} onBack={handleBackToHome} />;
@@ -273,6 +305,7 @@ const App: React.FC = () => {
                   onStartEconomyQuiz={handleStartEconomyQuiz}
                   onStartPolityQuiz={handleStartPolityQuiz}
                   onStartScienceTechQuiz={handleStartScienceTechQuiz}
+                  onStartFullMockQuiz={handleStartFullMockQuiz}
                 />;
     }
   };
