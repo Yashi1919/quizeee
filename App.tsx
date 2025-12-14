@@ -10,6 +10,14 @@ import Navbar from './components/Navbar';
 import { parseQuizFromText } from './services/geminiService';
 import { getSavedQuizzes, saveQuizzes } from './services/quizStorageService';
 import LoadingSpinner from './components/LoadingSpinner';
+import { ANCIENT_HISTORY_QUIZ } from './data/ancientHistoryQuiz';
+import { ENVIRONMENT_ECOLOGY_QUIZ } from './data/environmentEcologyQuiz';
+import { MODERN_HISTORY_QUIZ } from './data/modernHistoryQuiz';
+import { GEOGRAPHY_QUIZ } from './data/geographyQuiz';
+import { ART_CULTURE_QUIZ } from './data/artCultureQuiz';
+import { ECONOMY_QUIZ } from './data/economyQuiz';
+import { POLITY_QUIZ } from './data/polityQuiz';
+import { SCIENCE_TECH_QUIZ } from './data/scienceTechQuiz';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.HOME);
@@ -76,6 +84,95 @@ const App: React.FC = () => {
     }
   }, [savedQuizzes]);
 
+  const handleStartFeaturedQuiz = useCallback((quizId: string, name: string, data: any) => {
+      const existing = savedQuizzes.find(q => q.id === quizId);
+
+      if (existing) {
+          setActiveQuiz(existing);
+      } else {
+          // Create the default quiz and save it
+          const totalQuestions = data.reduce((acc: number, section: any) => acc + section.questions.length, 0);
+          const newDefaultQuiz: SavedQuiz = {
+              id: quizId,
+              name: name,
+              quizData: data,
+              userAnswers: new Array(totalQuestions).fill(null),
+              timeLimitInSeconds: null,
+              timeLeftInSeconds: null,
+              createdAt: new Date().toISOString(),
+          };
+          const updatedQuizzes = [newDefaultQuiz, ...savedQuizzes];
+          setSavedQuizzes(updatedQuizzes);
+          saveQuizzes(updatedQuizzes);
+          setActiveQuiz(newDefaultQuiz);
+      }
+      setAppState(AppState.QUIZ);
+  }, [savedQuizzes]);
+
+  const handleStartAncientHistoryQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-ancient-history-12y',
+      "Ancient and Medieval History PYQ (12 Years)",
+      ANCIENT_HISTORY_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartEnvironmentQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-environment-ecology-12y',
+      "Environment & Ecology PYQ (12 Years)",
+      ENVIRONMENT_ECOLOGY_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartModernHistoryQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-modern-history-12y',
+      "Modern History PYQ (12 Years)",
+      MODERN_HISTORY_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartGeographyQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-geography-12y',
+      "Geography PYQ (12 Years)",
+      GEOGRAPHY_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartArtCultureQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-art-culture-12y',
+      "Art and Culture PYQ (12 Years)",
+      ART_CULTURE_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartEconomyQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-economy-12y',
+      "Economy PYQ (12 Years)",
+      ECONOMY_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartPolityQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-polity-12y',
+      "Indian Polity PYQ (12 Years)",
+      POLITY_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
+  const handleStartScienceTechQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-science-tech-12y',
+      "Science & Technology PYQ (12 Years)",
+      SCIENCE_TECH_QUIZ
+    );
+  }, [handleStartFeaturedQuiz]);
+
   const handleDeleteQuiz = useCallback((quizId: string) => {
     const updatedQuizzes = savedQuizzes.filter(q => q.id !== quizId);
     setSavedQuizzes(updatedQuizzes);
@@ -129,6 +226,14 @@ const App: React.FC = () => {
                   onCreateNew={() => setAppState(AppState.INPUT)} 
                   onShowSaved={() => setAppState(AppState.SAVED_QUIZZES)}
                   hasSavedQuizzes={savedQuizzes.length > 0} 
+                  onStartAncientHistoryQuiz={handleStartAncientHistoryQuiz}
+                  onStartEnvironmentQuiz={handleStartEnvironmentQuiz}
+                  onStartModernHistoryQuiz={handleStartModernHistoryQuiz}
+                  onStartGeographyQuiz={handleStartGeographyQuiz}
+                  onStartArtCultureQuiz={handleStartArtCultureQuiz}
+                  onStartEconomyQuiz={handleStartEconomyQuiz}
+                  onStartPolityQuiz={handleStartPolityQuiz}
+                  onStartScienceTechQuiz={handleStartScienceTechQuiz}
                 />;
       case AppState.INPUT:
         return <InputScreen onCreateQuiz={handleCreateQuiz} error={error} onBack={handleBackToHome} />;
@@ -160,6 +265,14 @@ const App: React.FC = () => {
                   onCreateNew={() => setAppState(AppState.INPUT)} 
                   onShowSaved={() => setAppState(AppState.SAVED_QUIZZES)}
                   hasSavedQuizzes={savedQuizzes.length > 0} 
+                  onStartAncientHistoryQuiz={handleStartAncientHistoryQuiz}
+                  onStartEnvironmentQuiz={handleStartEnvironmentQuiz}
+                  onStartModernHistoryQuiz={handleStartModernHistoryQuiz}
+                  onStartGeographyQuiz={handleStartGeographyQuiz}
+                  onStartArtCultureQuiz={handleStartArtCultureQuiz}
+                  onStartEconomyQuiz={handleStartEconomyQuiz}
+                  onStartPolityQuiz={handleStartPolityQuiz}
+                  onStartScienceTechQuiz={handleStartScienceTechQuiz}
                 />;
     }
   };
