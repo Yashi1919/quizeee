@@ -14,6 +14,7 @@ interface HomeScreenProps {
   onStartPolityQuiz: () => void;
   onStartScienceTechQuiz: () => void;
   onStartFullMockQuiz: () => void;
+  onStartCsatQuiz: () => void;
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ 
@@ -28,7 +29,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
     onStartEconomyQuiz, 
     onStartPolityQuiz, 
     onStartScienceTechQuiz,
-    onStartFullMockQuiz
+    onStartFullMockQuiz,
+    onStartCsatQuiz
 }) => {
   return (
     <div className="flex flex-col items-center justify-center h-full text-center">
@@ -59,24 +61,41 @@ const HomeScreen: React.FC<HomeScreenProps> = ({
       <div className="mt-16 w-full">
         <h2 className="text-2xl font-semibold text-text_primary mb-6 border-b border-secondary pb-2">Featured Quizzes</h2>
         
-        {/* Full Mock Test Section */}
-        <div className="mb-8">
-            <div className="bg-gradient-to-r from-indigo-900 to-purple-900 border border-indigo-500 p-6 rounded-xl text-left shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-indigo-500/20 flex flex-col sm:flex-row justify-between items-center gap-6">
+        {/* Full Mock Test Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-gradient-to-r from-indigo-900 to-blue-900 border border-indigo-500 p-6 rounded-xl text-left shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-indigo-500/20 flex flex-col justify-between">
                 <div>
-                    <h3 className="text-2xl font-bold text-white mb-2">UPSC Prelims GS1 Full Mock</h3>
+                    <h3 className="text-2xl font-bold text-white mb-2">UPSC Prelims GS-1 Mock</h3>
                     <p className="text-indigo-200 text-sm mb-1">
                         <span className="font-semibold text-white">100 Questions</span> • <span className="font-semibold text-white">120 Minutes</span>
                     </p>
-                    <p className="text-text_secondary text-sm max-w-xl">
-                        A comprehensive mock test designed based on recent UPSC trends. 
-                        Includes Geography (20), Polity (17), Economy (16), Environment (18), History (12), and Science & Tech (17).
+                    <p className="text-text_secondary text-sm mb-6">
+                        Comprehensive mock test (Geography, Polity, Economy, etc.) based on recent trends.
                     </p>
                 </div>
                 <button
                     onClick={onStartFullMockQuiz}
-                    className="px-8 py-3 bg-white text-indigo-900 hover:bg-indigo-50 font-bold rounded-lg shadow-lg transition-colors whitespace-nowrap"
+                    className="w-full py-3 bg-white text-indigo-900 hover:bg-indigo-50 font-bold rounded-lg shadow-lg transition-colors whitespace-nowrap"
                 >
-                    Start Mock Test &rarr;
+                    Start GS-1 Mock &rarr;
+                </button>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-900 to-pink-900 border border-purple-500 p-6 rounded-xl text-left shadow-2xl transform transition-all hover:scale-[1.01] hover:shadow-purple-500/20 flex flex-col justify-between">
+                <div>
+                    <h3 className="text-2xl font-bold text-white mb-2">UPSC Prelims GS-2 (CSAT)</h3>
+                    <p className="text-purple-200 text-sm mb-1">
+                        <span className="font-semibold text-white">Practice Set</span> • <span className="font-semibold text-white">120 Minutes</span>
+                    </p>
+                    <p className="text-text_secondary text-sm mb-6">
+                        Test your aptitude with Reading Comprehension, Logical Reasoning, and Basic Numeracy. (Qualifying: 33%)
+                    </p>
+                </div>
+                <button
+                    onClick={onStartCsatQuiz}
+                    className="w-full py-3 bg-white text-purple-900 hover:bg-purple-50 font-bold rounded-lg shadow-lg transition-colors whitespace-nowrap"
+                >
+                    Start CSAT Mock &rarr;
                 </button>
             </div>
         </div>

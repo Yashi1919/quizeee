@@ -19,6 +19,7 @@ import { ECONOMY_QUIZ } from './data/economyQuiz';
 import { POLITY_QUIZ } from './data/polityQuiz';
 import { SCIENCE_TECH_QUIZ } from './data/scienceTechQuiz';
 import { generateMockQuiz } from './data/fullMockQuiz';
+import { CSAT_QUIZ } from './data/csatQuiz';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.HOME);
@@ -189,7 +190,7 @@ const App: React.FC = () => {
     
     const newMockQuiz: SavedQuiz = {
         id: `mock-gs1-${timestamp}`,
-        name: `Prelims Mock - ${dateStr} ${timeStr}`,
+        name: `Prelims Mock GS-1 - ${dateStr} ${timeStr}`,
         quizData: quizData,
         userAnswers: new Array(totalQuestions).fill(null),
         timeLimitInSeconds: timeLimitInSeconds,
@@ -203,6 +204,15 @@ const App: React.FC = () => {
     setActiveQuiz(newMockQuiz);
     setAppState(AppState.QUIZ);
   }, [savedQuizzes]);
+
+  const handleStartCsatQuiz = useCallback(() => {
+    handleStartFeaturedQuiz(
+      'default-csat-gs2',
+      "UPSC Prelims GS-2 (CSAT) Practice",
+      CSAT_QUIZ,
+      120 // 120 Minutes Time Limit for CSAT
+    );
+  }, [handleStartFeaturedQuiz]);
 
   const handleDeleteQuiz = useCallback((quizId: string) => {
     const updatedQuizzes = savedQuizzes.filter(q => q.id !== quizId);
@@ -266,6 +276,7 @@ const App: React.FC = () => {
                   onStartPolityQuiz={handleStartPolityQuiz}
                   onStartScienceTechQuiz={handleStartScienceTechQuiz}
                   onStartFullMockQuiz={handleStartFullMockQuiz}
+                  onStartCsatQuiz={handleStartCsatQuiz}
                 />;
       case AppState.INPUT:
         return <InputScreen onCreateQuiz={handleCreateQuiz} error={error} onBack={handleBackToHome} />;
@@ -306,6 +317,7 @@ const App: React.FC = () => {
                   onStartPolityQuiz={handleStartPolityQuiz}
                   onStartScienceTechQuiz={handleStartScienceTechQuiz}
                   onStartFullMockQuiz={handleStartFullMockQuiz}
+                  onStartCsatQuiz={handleStartCsatQuiz}
                 />;
     }
   };
